@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wave Superposition & Interference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#e9f3fc;--card:#fff;--title:#3f7fd0;--ink:#3a63a8;--coral:#e8897f;--amber:#f2b705;--deep:#27348b;--grey:#9aa7b4;--frame:#3f7fd0;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);font-family:'PT Serif',Georgia,serif;color:var(--ink)}
+  .wrap{height:100%;display:flex;flex-direction:column;padding:16px;gap:14px}
+  header{text-align:center}
+  header h1{font-family:'Fredoka',sans-serif;font-weight:700;font-size:30px;color:var(--title);text-shadow:2px 2px 0 #cfe3f7}
+  header p{font-size:15px;margin-top:2px}
+  .stage{flex:1;background:var(--card);border:4px solid var(--frame);border-radius:26px;overflow:hidden;position:relative;box-shadow:0 6px 20px rgba(63,127,208,.15)}
+  canvas{display:block;width:100%;height:100%}
+  .panel{background:var(--card);border-radius:22px;box-shadow:0 4px 16px rgba(63,127,208,.12);padding:14px 22px;display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+  .ctrl{display:flex;flex-direction:column;gap:6px;min-width:240px;flex:1}
+  .ctrl label{font-family:'Fredoka',sans-serif;font-size:15px;display:flex;justify-content:space-between}
+  .ctrl label b{color:var(--title)}
+  input[type=range]{accent-color:var(--frame);height:24px}
+  #status{font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;padding:8px 16px;border-radius:12px;min-width:150px;text-align:center}
+  .con{background:#eafaf1;color:#1f9d57}.des{background:#fdecec;color:#d5553f}.par{background:#eef5fd;color:#3f7fd0}
+  .btn{font-family:'Fredoka',sans-serif;font-weight:600;font-size:14px;border:2px solid var(--frame);background:#fff;color:var(--frame);border-radius:12px;padding:8px 16px;cursor:pointer}
+</style></head>
+<body>
+<div class="wrap">
+  <header><h1>Wave Superposition</h1><p>Two coherent waves (same frequency) overlap — shift the phase and watch the resultant grow and vanish.</p></header>
+  <div class="stage"><canvas id="c"></canvas></div>
+  <div class="panel">
+    <div class="ctrl"><label>Phase difference Δφ <b id="phV">0°</b></label><input id="ph" type="range" min="0" max="360" value="0"></div>
+    <div class="ctrl"><label>Wave 2 amplitude <b id="a2V">100%</b></label><input id="a2" type="range" min="0" max="100" value="100"></div>
+    <div id="status" class="con">Constructive</div>
+    <button class="btn" id="pause">Pause</button>
+  </div>
+</div>
+<script>
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+const TITLE='#3f7fd0',INK='#3a63a8',CORAL='#e8897f',AMBER='#f2b705',DEEP='#27348b',GREY='#9aa7b4';
+let W,H,dpr;
+function resize(){dpr=Math.min(window.devicePixelRatio||1,2);const r=cv.getBoundingClientRect();W=r.width;H=r.height;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);}
+window.addEventListener('resize',resize);
+const ph=document.getElementById('ph'),a2=document.getElementById('a2'),phV=document.getElementById('phV'),a2V=document.getElementById('a2V'),status=document.getElementById('status'),pauseBtn=document.getElementById('pause');
+let t=0,playing=true;
+function wave(fn,color,w,amp,alpha,fill){ctx.save();ctx.globalAlpha=alpha==null?1:alpha;ctx.strokeStyle=color;ctx.lineWidth=w;ctx.lineJoin='round';ctx.beginPath();const padL=70,padR=40,x0=padL,x1=W-padR;let first=true;for(let px=x0;px<=x1;px+=2){const y=fn((px-x0));if(first){ctx.moveTo(px,y);first=false;}else ctx.lineTo(px,y);}ctx.stroke();if(fill){ctx.lineTo(x1,fill);ctx.lineTo(x0,fill);ctx.closePath();ctx.globalAlpha=0.10;ctx.fillStyle=color;ctx.fill();}ctx.restore();}
+function txt(s,x,y,c,px,al){ctx.save();ctx.fillStyle=c;ctx.font='600 '+px+"px Fredoka, sans-serif";ctx.textAlign=al||'left';ctx.textBaseline='middle';ctx.fillText(s,x,y);ctx.restore();}
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  const mid=H*0.5, amp=Math.min(H*0.17,150), k=2*Math.PI/Math.min(W*0.33,360), w=2.4;
+  const A1=amp, A2=amp*(+a2.value/100), phi=(+ph.value)*Math.PI/180;
+  // midline + grid
+  ctx.strokeStyle='#eef2f7';ctx.lineWidth=1;for(let gy=mid-amp*2;gy<=mid+amp*2;gy+=amp){ctx.beginPath();ctx.moveTo(60,gy);ctx.lineTo(W-30,gy);ctx.stroke();}
+  ctx.strokeStyle='#cfdcec';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(60,mid);ctx.lineTo(W-30,mid);ctx.stroke();
+  const y1=d=>mid - A1*Math.sin(k*d - 2*t);
+  const y2=d=>mid - A2*Math.sin(k*d - 2*t + phi);
+  const ys=d=>mid - (A1*Math.sin(k*d-2*t)+A2*Math.sin(k*d-2*t+phi));
+  // component waves (thin)
+  wave(y1,DEEP,2.5,A1,0.55);
+  wave(y2,CORAL,2.5,A2,0.55);
+  // resultant (thick, filled)
+  wave(ys,TITLE,5,A1+A2,1,mid);
+  // legend
+  txt('Wave 1',W-30,mid-amp*1.75,DEEP,15,'right');
+  txt('Wave 2',W-30,mid-amp*1.75+22,CORAL,15,'right');
+  txt('Resultant',W-30,mid-amp*1.75+44,TITLE,16,'right');
+  // resultant amplitude indicator (relative to 2A)
+  const res=Math.sqrt(A1*A1+A2*A2+2*A1*A2*Math.cos(phi));
+  const relp=Math.round(100*res/(2*amp));
+  txt('Resultant amplitude ≈ '+relp+'% of max',70,32,INK,17,'left');
+  // status
+  const dd=Math.min(Math.abs(+ph.value),Math.abs(360-(+ph.value)));
+  phV.textContent=(+ph.value)+'°';a2V.textContent=(+a2.value)+'%';
+  if(dd<25){status.textContent='Constructive';status.className='con';}
+  else if(Math.abs(+ph.value-180)<25){status.textContent='Destructive';status.className='des';}
+  else{status.textContent='Partial';status.className='par';}
+}
+ph.oninput=a2.oninput=()=>{if(!playing)draw();};
+pauseBtn.onclick=function(){playing=!playing;this.textContent=playing?'Pause':'Play';};
+let last=performance.now();
+function loop(now){const dt=(now-last)/1000;last=now;if(playing)t+=dt;draw();requestAnimationFrame(loop);}
+resize();requestAnimationFrame(loop);
+</script>
+</body></html>

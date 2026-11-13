@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OrbiTutor — Optics Sims</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#e9f3fc;--card:#fff;--title:#3f7fd0;--ink:#3a63a8;--coral:#e8897f;--amber:#f2b705;--frame:#3f7fd0;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{min-height:100vh;background:var(--bg);font-family:'PT Serif',Georgia,serif;color:var(--ink);padding:48px 20px}
+  .hub{max-width:900px;margin:0 auto}
+  h1{font-family:'Fredoka',sans-serif;font-weight:700;font-size:40px;color:var(--title);text-align:center;text-shadow:2px 2px 0 #cfe3f7}
+  .sub{text-align:center;font-size:17px;margin:6px 0 36px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px}
+  a.card{display:block;text-decoration:none;background:var(--card);border:3px solid var(--frame);border-radius:24px;padding:26px;box-shadow:0 6px 20px rgba(63,127,208,.12);transition:transform .15s,box-shadow .15s}
+  a.card:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(63,127,208,.22)}
+  .card h2{font-family:'Fredoka',sans-serif;font-weight:600;font-size:23px;color:var(--title);margin-bottom:8px}
+  .card p{font-size:15px;color:var(--ink);line-height:1.5}
+  .tag{display:inline-block;font-family:'Fredoka',sans-serif;font-size:13px;background:#eef5fd;color:var(--frame);border-radius:10px;padding:5px 12px;margin-bottom:14px}
+  footer{text-align:center;margin-top:40px;font-family:'Fredoka',sans-serif;font-size:14px;color:#8aa3c2}
+</style></head>
+<body>
+<div class="hub">
+  <h1>OrbiTutor · Interactive Sims</h1>
+  <p class="sub">Optics I — tap a card to open the live simulation. Hyperlink these from the workshop slides.</p>
+  <div class="grid">
+    <a class="card" href="tir/">
+      <span class="tag">Optics I · TIR</span>
+      <h2>Total Internal Reflection</h2>
+      <p>Drag the angle of incidence through the critical angle and watch light go from refracting, to grazing the surface, to reflecting completely back into the glass.</p>
+    </a>
+    <a class="card" href="superposition/">
+      <span class="tag">Optics I · Interference</span>
+      <h2>Wave Superposition</h2>
+      <p>Shift the phase between two coherent waves and watch the resultant grow to double (constructive) and vanish to zero (destructive).</p>
+    </a>
+  </div>
+  <footer>OrbiTutor workshop materials</footer>
+</div>
+</body></html>
